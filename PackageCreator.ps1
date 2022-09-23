@@ -85,13 +85,13 @@ if ($author){
 	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>$author</authors>") | Set-Content $file.PSPath -NoNewLine
 	}
 else{
-	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>$packageName</authors>") | Set-Content $file.PSPath -NoNewLine
+	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>NiessingIT</authors>") | Set-Content $file.PSPath -NoNewLine
 }
 if($description){
 	(Get-Content -Raw $file.PSPath).replace("<description>__REPLACE__MarkDown_Okay </description>", "<description>$description</description>") | Set-Content $file.PSPath -NoNewLine
 }
 else{
-	(Get-Content -Raw $file.PSPath).replace("<description>__REPLACE__MarkDown_Okay </description>", "<description></description>") | Set-Content $file.PSPath -NoNewLine
+	(Get-Content -Raw $file.PSPath).replace("<description>__REPLACE__MarkDown_Okay </description>", "<description>Very intresting description</description>") | Set-Content $file.PSPath -NoNewLine
 }
 Write-Host "version sucessfully changed" -ForegroundColor Green
 
@@ -131,13 +131,18 @@ $f= "$chocoinstall"
 gc $f | ? {$_ -notmatch "^\s*#"} | % {$_ -replace '(^.*?)\s*?[^``]#.*','$1'} | Out-File $f+".~" -en utf8; mv -fo $f+".~" $f
 Write-Host "Comments sucessfully deleted" -ForegroundColor Green
 
+#configuring chocolatey uninstall
+if ($extension -eq "exe"){
+	Write-Host "configuring chocolatey uninstall"
+	$chocoinstall= Get-ChildItem .\chocolateyuninstall.ps1
+	(Get-Content -Raw $chocoinstall.PSPath).replace("EXE_MSI_OR_MSU", "$extension") | Set-Content $chocoinstall.PSPath -NoNewLine
+	(Get-Content -Raw $chocoinstall.PSPath).replace("#silentArgs   = '/S'", "silentArgs   = '/S'") | Set-Content $chocoinstall.PSPath -NoNewLine	
+}
+Write-Host "Succesfully edited chocouninstall" -ForegroundColor Green
+
 #packing the package
 cd ..
 choco pack
-
-
-
-
 
 
 
