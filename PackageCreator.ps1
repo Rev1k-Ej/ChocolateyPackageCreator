@@ -38,7 +38,7 @@ while ($true){
 #creating a template of a package in said directory
 cd $path
 choco new "$name_of_package"
-cd .\$name_of_package
+
 
 #moving installer to the package folder 
 while ($true) {
@@ -58,9 +58,13 @@ while ($true) {
     Write-Host "Wrong path. Please try again" -ForegroundColor Red
 }
 
+
+
 Write-Host "Valid path: '$path_to_installer'" -ForegroundColor Green
-copy $path_to_installer .\tools
+copy $path_to_installer .\$name_of_package\tools
 Write-Host "Installer is moved" -ForegroundColor Green
+
+cd .\$name_of_package
 
 #changing the version of package (nececary for it to work)
 while ($true){
@@ -72,8 +76,23 @@ while ($true){
 		Write-Host "You entered wrong version, please only use numbers from 0 to 9 and dots" -ForegroundColor Red
 	}
 }
+$author = read-host -Prompt "Enter the Author of software (press enter to skip)"
+$description = read-host -Prompt "Enter the Description of sodtware (press enter to skip)"
+
 $file = Get-ChildItem .\ *.nuspec
 (Get-Content -Raw $file.PSPath).replace("<version>__REPLACE__</version>", "<version>$version</version>") | Set-Content $file.PSPath -NoNewLine
+if ($author){
+	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>$author</authors>") | Set-Content $file.PSPath -NoNewLine
+	}
+else{
+	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>$packageName</authors>") | Set-Content $file.PSPath -NoNewLine
+}
+if($description){
+	(Get-Content -Raw $file.PSPath).replace("<description>__REPLACE__MarkDown_Okay </description>", "<description>$description</description>") | Set-Content $file.PSPath -NoNewLine
+}
+else{
+	(Get-Content -Raw $file.PSPath).replace("<description>__REPLACE__MarkDown_Okay </description>", "<description></description>") | Set-Content $file.PSPath -NoNewLine
+}
 Write-Host "version sucessfully changed" -ForegroundColor Green
 
 
@@ -98,6 +117,12 @@ if ($extension -eq "exe"){
 	}
 	(Get-Content -Raw $chocoinstall.PSPath).replace('silentArgs    = "/qn', '#silentArgs    = "/qn') | Set-Content $chocoinstall.PSPath -NoNewLine
 }
+else{
+	$custom_args = read-host -Prompt "If you want to add custom arguments, enter them here. Press Etner to skip"
+	if ($custom_args){
+		(Get-Content -Raw $chocoinstall.PSPath).replace('silentArgs    = "/qn /norestart /l*v `"$($env:TEMP)\$($packageName).$($env:chocolateyPackageVersion).MsiInstall.log`""', "silentArgs   = '$custom_args'") | Set-Content $chocoinstall.PSPath -NoNewLine
+	}
+}
 Write-Host "Succesfully edited chocoinstall" -ForegroundColor Green
 
 #deleting comments
@@ -111,6 +136,11 @@ cd ..
 choco pack
 
 
+
+
+
+
+
 Write-Host "###########################################################" -ForegroundColor Green
 Write-Host "#                                                         #" -ForegroundColor Green
 Write-Host "#                                                         #" -ForegroundColor Green
@@ -119,3 +149,4 @@ Write-Host "#                                                         #" -Foregr
 Write-Host "#                                                         #" -ForegroundColor Green
 Write-Host "###########################################################" -ForegroundColor Green
 #Write-Host "finished" -ForegroundColor Green
+cd ..
