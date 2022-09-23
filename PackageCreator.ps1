@@ -85,7 +85,7 @@ if ($author){
 	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>$author</authors>") | Set-Content $file.PSPath -NoNewLine
 	}
 else{
-	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>NiessingIT</authors>") | Set-Content $file.PSPath -NoNewLine
+	(Get-Content -Raw $file.PSPath).replace("<authors>__REPLACE_AUTHORS_OF_SOFTWARE_COMMA_SEPARATED__</authors>", "<authors>Rev1kThePepega</authors>") | Set-Content $file.PSPath -NoNewLine
 }
 if($description){
 	(Get-Content -Raw $file.PSPath).replace("<description>__REPLACE__MarkDown_Okay </description>", "<description>$description</description>") | Set-Content $file.PSPath -NoNewLine
