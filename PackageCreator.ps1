@@ -3,9 +3,9 @@ while ($true) {
     $path = Read-Host -Prompt "Enter a path where you want to create package"
     if (Test-Path -Path $path) { break } #checking if path is valid
 
-    Write-Host "Wrong path. Please try again" -ForegroundColor Red
+    Write-Verbose "Wrong path. Please try again" -ForegroundColor Red
 }
-Write-Host "Valid path: '$path'" -ForegroundColor Green
+Write-Verbose "Valid path: '$path'" -ForegroundColor Green
 
 #getting the  name of package
 while ($true){
@@ -13,16 +13,16 @@ while ($true){
 	if ($name_of_package){ #Checking if host entered something
 		$package_path = -join ($path, $name_of_package)
 		if (Test-Path -Path $package_path){ #Checking if folder already exists
-			Write-Host "The folder '$package_path already exists'" -ForegroundColor Yellow
+			Write-Verbose "The folder '$package_path already exists'" -ForegroundColor Yellow
 			while ($true) {
 				$delete_check = read-host -Prompt "Do you want to delete everything inside that folder [y or n]"
 				if ($delete_check -eq "y"){
 					rm $package_path #deleting existing folder
-					Write-Host "folder sucessfully deleted" -ForegroundColor Green
+					Write-Verbose "folder sucessfully deleted" -ForegroundColor Green
 					break
 				}
 				elseif ($delete_check -ne "n"){
-					Write-Host "Wrong answer, please write y or n" -ForegroundColor Red
+					Write-Verbose "Wrong answer, please write y or n" -ForegroundColor Red
 				}
 				break
 			}
@@ -32,7 +32,7 @@ while ($true){
 		else {break}
 	}
 	
-	Write-Host "Wrong name. Please try again" -ForegroundColor Red
+	Write-Verbose "Wrong name. Please try again" -ForegroundColor Red
 }
 
 #creating a template of a package in said directory
@@ -51,18 +51,18 @@ while ($true) {
 		elseif ($extension -eq "msi"){break}
 		elseif ($extension -eq "msu"){break}
 		else{
-			Write-Host "Wrong file extension. Please select a EXEMSI or MSU file" -ForegroundColor Red
+			Write-Verbose "Wrong file extension. Please select a EXEMSI or MSU file" -ForegroundColor Red
 		}
 	}	
 
-    Write-Host "Wrong path. Please try again" -ForegroundColor Red
+    Write-Verbose "Wrong path. Please try again" -ForegroundColor Red
 }
 
 
 
-Write-Host "Valid path: '$path_to_installer'" -ForegroundColor Green
+Write-Verbose "Valid path: '$path_to_installer'" -ForegroundColor Green
 copy $path_to_installer .\$name_of_package\tools
-Write-Host "Installer is moved" -ForegroundColor Green
+Write-Verbose "Installer is moved" -ForegroundColor Green
 
 cd .\$name_of_package
 
@@ -73,7 +73,7 @@ while ($true){
 		break
 	}
 	else{
-		Write-Host "You entered wrong version, please only use numbers from 0 to 9 and dots" -ForegroundColor Red
+		Write-Verbose "You entered wrong version, please only use numbers from 0 to 9 and dots" -ForegroundColor Red
 	}
 }
 $author = read-host -Prompt "Enter the Author of software (press enter to skip)"
@@ -93,7 +93,7 @@ if($description){
 else{
 	(Get-Content -Raw $file.PSPath).replace("<description>__REPLACE__MarkDown_Okay </description>", "<description>Very intresting description</description>") | Set-Content $file.PSPath -NoNewLine
 }
-Write-Host "version sucessfully changed" -ForegroundColor Green
+Write-Verbose "version sucessfully changed" -ForegroundColor Green
 
 
 
@@ -123,22 +123,22 @@ else{
 		(Get-Content -Raw $chocoinstall.PSPath).replace('silentArgs    = "/qn /norestart /l*v `"$($env:TEMP)\$($packageName).$($env:chocolateyPackageVersion).MsiInstall.log`""', "silentArgs   = '$custom_args'") | Set-Content $chocoinstall.PSPath -NoNewLine
 	}
 }
-Write-Host "Succesfully edited chocoinstall" -ForegroundColor Green
+Write-Verbose "Succesfully edited chocoinstall" -ForegroundColor Green
 
 #deleting comments
-Write-Host "Deleting comments..."
+Write-Verbose "Deleting comments..."
 $f= "$chocoinstall"
 gc $f | ? {$_ -notmatch "^\s*#"} | % {$_ -replace '(^.*?)\s*?[^``]#.*','$1'} | Out-File $f+".~" -en utf8; mv -fo $f+".~" $f
-Write-Host "Comments sucessfully deleted" -ForegroundColor Green
+Write-Verbose "Comments sucessfully deleted" -ForegroundColor Green
 
 #configuring chocolatey uninstall
 if ($extension -eq "exe"){
-	Write-Host "configuring chocolatey uninstall"
+	Write-Verbose "configuring chocolatey uninstall"
 	$chocoinstall= Get-ChildItem .\chocolateyuninstall.ps1
 	(Get-Content -Raw $chocoinstall.PSPath).replace("EXE_MSI_OR_MSU", "$extension") | Set-Content $chocoinstall.PSPath -NoNewLine
 	(Get-Content -Raw $chocoinstall.PSPath).replace("#silentArgs   = '/S'", "silentArgs   = '/S'") | Set-Content $chocoinstall.PSPath -NoNewLine	
 }
-Write-Host "Succesfully edited chocouninstall" -ForegroundColor Green
+Write-Verbose "Succesfully edited chocouninstall" -ForegroundColor Green
 
 #packing the package
 cd ..
@@ -146,12 +146,12 @@ choco pack
 
 
 
-Write-Host "###########################################################" -ForegroundColor Green
-Write-Host "#                                                         #" -ForegroundColor Green
-Write-Host "#                                                         #" -ForegroundColor Green
-Write-Host "#               FINISHED SUCCESFULLY                      #" -ForegroundColor Green
-Write-Host "#                                                         #" -ForegroundColor Green
-Write-Host "#                                                         #" -ForegroundColor Green
-Write-Host "###########################################################" -ForegroundColor Green
-#Write-Host "finished" -ForegroundColor Green
+Write-Verbose "###########################################################" -ForegroundColor Green
+Write-Verbose "#                                                         #" -ForegroundColor Green
+Write-Verbose "#                                                         #" -ForegroundColor Green
+Write-Verbose "#               FINISHED SUCCESFULLY                      #" -ForegroundColor Green
+Write-Verbose "#                                                         #" -ForegroundColor Green
+Write-Verbose "#                                                         #" -ForegroundColor Green
+Write-Verbose "###########################################################" -ForegroundColor Green
+#Write-Verbose "finished" -ForegroundColor Green
 cd ..
